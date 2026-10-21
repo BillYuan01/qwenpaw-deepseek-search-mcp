@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "deepseek": {
+      "command": "/absolute/path/to/deepseek-search-mcp/.venv/bin/python",
+      "args": [
+        "/absolute/path/to/deepseek-search-mcp/server.py"
+      ],
+      "env": {
+        "DEEPSEEK_API_KEY": "sk-xxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+name: deepseek_search
+protocol: mcp
+endpoint:
+  transport: stdio
+  command: /absolute/path/to/deepseek-search-mcp/.venv/bin/python
+  args:
+    - /absolute/path/to/deepseek-search-mcp/server.py
+  cwd: /absolute/path/to/deepseek-search-mcp
+  env: {}
+enabled: true
+config:
+  display_name: deepseek
+  description: DeepSeek 官方 Search / Fetch API（网页检索 + 正文抓取）
