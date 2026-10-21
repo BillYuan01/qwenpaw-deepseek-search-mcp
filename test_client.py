@@ -2,10 +2,11 @@
 """冒烟测试：用官方 MCP 客户端直连本服务器，验证工具注册与调用链路。
 
 用法：
-    export DEEPSEEK_API_KEY=sk-xxxxxxxx
     python test_client.py
 
-没有 key 时只做 list_tools；有 key 时额外跑一次 search 和一次 fetch（各计费一次）。
+不要求设置 DEEPSEEK_API_KEY：会复用 server.py 的四级解析逻辑，
+已配好 QwenPaw DeepSeek 提供商的机器可以直接跑通。
+一次完整运行会消耗 2 次 API 调用（search + fetch），约 ¥0.01。
 """
 
 import asyncio
@@ -17,6 +18,9 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+
+import server  # noqa: E402  —— 复用同一套 key 解析逻辑，避免两处实现漂移
 
 PARAMS = StdioServerParameters(
     command=sys.executable,
@@ -26,17 +30,20 @@ PARAMS = StdioServerParameters(
 
 
 async def main() -> int:
+    key, source = server.resolve_api_key()
+    print(f"key 来源: {source or '无'}（长度 {len(key)}）")
+
     async with stdio_client(PARAMS) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
 
             tools = await session.list_tools()
-            names = [t.name for t in tools.tools]
+            names = sorted(t.name for t in tools.tools)
             print("tools:", names)
-            assert names == ["deepseek_search", "deepseek_fetch"], f"工具注册异常: {names}"
+            assert names == ["deepseek_fetch", "deepseek_search"], f"工具注册异常: {names}"
 
-            if not os.environ.get("DEEPSEEK_API_KEY", "").strip():
-                print("未设置 DEEPSEEK_API_KEY，跳过联网调用。")
+            if not key:
+                print("没有可用 key，跳过联网调用。")
                 return 0
 
             res = await session.call_tool(
