@@ -2,12 +2,27 @@ name: deepseek_search
 protocol: mcp
 endpoint:
   transport: stdio
-  command: /absolute/path/to/deepseek-search-mcp/.venv/bin/python
+  command: /absolute/path/to/qwenpaw-deepseek-search-mcp/.venv/bin/python
   args:
-    - /absolute/path/to/deepseek-search-mcp/server.py
-  cwd: /absolute/path/to/deepseek-search-mcp
+    - /absolute/path/to/qwenpaw-deepseek-search-mcp/server.py
+  cwd: /absolute/path/to/qwenpaw-deepseek-search-mcp
   env: {}
-enabled: true
+credentials: {}
 config:
   display_name: deepseek
   description: DeepSeek 官方 Search / Fetch API（网页检索 + 正文抓取）
+enabled: true
+policy:
+  default_effect: deny
+  rules:
+    - subject: '*'
+      effect: ask
+      target:
+        kind: tool
+        name: '*'
+      principal:
+        source_type: '*'
+        source_value: '*'
+        subject_type: '*'
+        subject_value: '*'
+      condition: null
